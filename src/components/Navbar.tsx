@@ -15,11 +15,14 @@ import {
   UserCheck,
 } from 'lucide-react';
 
+import { PWAInstallButton } from './PWAInstallButton';
+
 interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   streakCount: number;
   onOpenAiModal: () => void;
+  onOpenInstallModal: () => void;
   theme?: 'dark' | 'light';
   currentUser?: User | null;
   onLogin?: () => void;
@@ -31,6 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   streakCount,
   onOpenAiModal,
+  onOpenInstallModal,
   theme = 'dark',
   currentUser,
   onLogin,
@@ -96,6 +100,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Action Buttons */}
           <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* PWA / iOS Install Button */}
+            <PWAInstallButton onOpenModal={onOpenInstallModal} theme={theme} />
+
             {/* Streak Counter */}
             <div className="flex items-center space-x-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl text-amber-400 text-xs font-bold">
               <Flame className="w-4 h-4 text-amber-400 fill-amber-400/30 animate-pulse" />

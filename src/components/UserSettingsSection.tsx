@@ -306,6 +306,39 @@ export const UserSettingsSection: React.FC<UserSettingsSectionProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Install PWA di iOS & Android Card */}
+      <div
+        className={`rounded-2xl p-6 border shadow-xl space-y-4 transition-all ${
+          isDark
+            ? 'bg-slate-800/80 border-slate-700/60 text-slate-100'
+            : 'bg-white border-slate-200 text-slate-900 shadow-slate-200/50'
+        }`}
+      >
+        <div className="flex items-center space-x-3">
+          <div className="p-3 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/30">
+            <UserCheck className="w-6 h-6 text-teal-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">Install Aplikasi di iOS (iPhone / iPad) & Android</h2>
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Petunjuk pemasangan aplikasi langsung ke layar utama perangkat Anda
+            </p>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded-xl border text-xs leading-relaxed space-y-2 ${
+          isDark ? 'bg-slate-900/60 border-slate-700/60 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+        }`}>
+          <p className="font-bold text-emerald-400">Cara Instalasi di iPhone / iPad (Safari):</p>
+          <ol className="list-decimal list-inside space-y-1 text-[11px] pl-1">
+            <li>Buka halaman aplikasi ini menggunakan <strong>Safari</strong> di iPhone/iPad Anda.</li>
+            <li>Ketuk tombol <strong>Bagikan (Share)</strong> di bagian bawah layar Safari (ikon kotak dengan panah ke atas).</li>
+            <li>Gulir ke bawah dan ketuk opsi <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
+            <li>Tekan <strong>"Tambah"</strong> di pojok kanan atas. Aplikasi akan terpasang layaknya aplikasi bawaan iOS!</li>
+          </ol>
+        </div>
+      </div>
     </div>
   );
 };

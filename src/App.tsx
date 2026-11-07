@@ -24,6 +24,7 @@ import { BackupModal } from './components/BackupModal';
 import { AuthModal } from './components/AuthModal';
 import { AuthGate } from './components/AuthGate';
 import { UserSettingsSection } from './components/UserSettingsSection';
+import { PWAInstallModal } from './components/PWAInstallModal';
 import { FileText, Save, Sparkles, Sun, Moon, Check, ShieldCheck, Heart, CloudCheck, Database, Loader2, AlertTriangle } from 'lucide-react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, collection, onSnapshot } from 'firebase/firestore';
@@ -53,6 +54,7 @@ export default function App() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   // Validate connection to Firestore on boot
   useEffect(() => {
@@ -333,6 +335,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         streakCount={currentStreak}
         onOpenAiModal={() => setIsAiModalOpen(true)}
+        onOpenInstallModal={() => setIsInstallModalOpen(true)}
         theme={theme}
         currentUser={currentUser}
         onLogin={() => setIsAuthModalOpen(true)}
@@ -539,6 +542,13 @@ export default function App() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        theme={theme}
+      />
+
+      {/* PWA & iOS Install Modal */}
+      <PWAInstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
         theme={theme}
       />
     </div>
