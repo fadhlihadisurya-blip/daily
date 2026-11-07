@@ -4,7 +4,7 @@ import { User } from 'firebase/auth';
 import {
   CheckCircle2,
   BarChart3,
-  Bell,
+  BookOpen,
   Settings,
   Sparkles,
   Flame,
@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'beranda', label: 'Beranda', icon: <CheckCircle2 className="w-5 h-5" /> },
     { id: 'progres', label: 'Progres', icon: <BarChart3 className="w-5 h-5" /> },
-    { id: 'pengingat', label: 'Pengingat', icon: <Bell className="w-5 h-5" /> },
+    { id: 'surat_quran', label: 'Surat Al-Quran', icon: <BookOpen className="w-5 h-5" /> },
     { id: 'pengaturan', label: 'Pengaturan', icon: <Settings className="w-5 h-5" /> },
   ];
 

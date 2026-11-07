@@ -99,4 +99,4 @@ export interface ReminderConfig {
   sound: boolean;
 }
 
-export type ActiveTab = 'beranda' | 'progres' | 'pengingat' | 'pengaturan';
+export type ActiveTab = 'beranda' | 'progres' | 'surat_quran' | 'pengaturan';

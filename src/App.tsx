@@ -18,13 +18,13 @@ import { TilawahSection } from './components/TilawahSection';
 import { ReadingSection } from './components/ReadingSection';
 import { ExerciseSection } from './components/ExerciseSection';
 import { AnalyticsView } from './components/AnalyticsView';
-import { ReminderView } from './components/ReminderView';
+import { QuranSurahStoriesView } from './components/QuranSurahStoriesView';
 import { AiAdviceModal } from './components/AiAdviceModal';
 import { BackupModal } from './components/BackupModal';
 import { AuthModal } from './components/AuthModal';
 import { AuthGate } from './components/AuthGate';
 import { UserSettingsSection } from './components/UserSettingsSection';
-import { FileText, Save, Sparkles, Sun, Moon, Check, ShieldCheck, Heart, CloudCheck, Database, Loader2 } from 'lucide-react';
+import { FileText, Save, Sparkles, Sun, Moon, Check, ShieldCheck, Heart, CloudCheck, Database, Loader2, AlertTriangle } from 'lucide-react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, setDoc, collection, onSnapshot } from 'firebase/firestore';
 import {
@@ -44,6 +44,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('beranda');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const [quotaExceeded, setQuotaExceeded] = useState<boolean>(false);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('daily_routine_theme_v1') as 'dark' | 'light') || 'dark';
   });
@@ -60,13 +61,26 @@ export default function App() {
 
   // Track Firebase Auth state & attach realtime Firestore listeners
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    let unsubLogs: (() => void) | null = null;
+    let unsubReminders: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setAuthLoading(false);
+
+      if (unsubLogs) {
+        unsubLogs();
+        unsubLogs = null;
+      }
+      if (unsubReminders) {
+        unsubReminders();
+        unsubReminders = null;
+      }
+
       if (user) {
         // Sync daily logs collection
         const logsRef = collection(db, 'users', user.uid, 'daily_logs');
-        onSnapshot(
+        unsubLogs = onSnapshot(
           logsRef,
           (snapshot) => {
             const cloudLogs: Record<string, DailyLog> = {};
@@ -74,30 +88,59 @@ export default function App() {
               cloudLogs[docSnap.id] = docSnap.data() as DailyLog;
             });
             if (Object.keys(cloudLogs).length > 0) {
-              setAllLogs((prev) => ({ ...prev, ...cloudLogs }));
+              setAllLogs((prev) => {
+                const merged = { ...prev, ...cloudLogs };
+                saveAllLogs(merged);
+                return merged;
+              });
             }
           },
-          (error) => {
-            handleFirestoreError(error, OperationType.GET, `users/${user.uid}/daily_logs`);
+          (error: any) => {
+            if (
+              error?.message?.includes('Quota limit exceeded') ||
+              error?.message?.includes('resource-exhausted') ||
+              error?.code === 'resource-exhausted'
+            ) {
+              console.warn('Firestore write quota exceeded for daily logs snapshot.');
+              setQuotaExceeded(true);
+            } else {
+              console.warn('Daily logs snapshot warning:', error.message);
+            }
           }
         );
 
         // Sync reminders config doc
         const remindersRef = doc(db, 'users', user.uid, 'settings', 'reminders');
-        onSnapshot(
+        unsubReminders = onSnapshot(
           remindersRef,
           (docSnap) => {
             if (docSnap.exists() && docSnap.data().reminders) {
-              setReminders(docSnap.data().reminders);
+              const loadedReminders = docSnap.data().reminders;
+              setReminders(loadedReminders);
+              saveReminders(loadedReminders);
             }
           },
-          (error) => {
-            handleFirestoreError(error, OperationType.GET, `users/${user.uid}/settings/reminders`);
+          (error: any) => {
+            if (
+              error?.message?.includes('Quota limit exceeded') ||
+              error?.message?.includes('resource-exhausted') ||
+              error?.code === 'resource-exhausted'
+            ) {
+              console.warn('Firestore write quota exceeded for reminders snapshot.');
+              setQuotaExceeded(true);
+            } else {
+              console.warn('Reminders snapshot warning:', error.message);
+            }
           }
         );
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubLogs) unsubLogs();
+      if (unsubReminders) unsubReminders();
+    };
   }, []);
 
   // Sync theme to localStorage and body/documentElement
@@ -116,37 +159,6 @@ export default function App() {
     }
   }, [theme]);
 
-  // Sync logs to localStorage and Firestore whenever updated
-  useEffect(() => {
-    saveAllLogs(allLogs);
-
-    if (currentUser) {
-      const currentLogToSync = allLogs[selectedDate];
-      if (currentLogToSync) {
-        const logRef = doc(db, 'users', currentUser.uid, 'daily_logs', selectedDate);
-        setDoc(logRef, currentLogToSync, { merge: true }).catch((err) =>
-          handleFirestoreError(
-            err,
-            OperationType.WRITE,
-            `users/${currentUser.uid}/daily_logs/${selectedDate}`
-          )
-        );
-      }
-    }
-  }, [allLogs, selectedDate, currentUser]);
-
-  // Sync reminders to localStorage and Firestore
-  useEffect(() => {
-    saveReminders(reminders);
-
-    if (currentUser) {
-      const remindersRef = doc(db, 'users', currentUser.uid, 'settings', 'reminders');
-      setDoc(remindersRef, { reminders, updatedAt: new Date().toISOString() }, { merge: true }).catch((err) =>
-        handleFirestoreError(err, OperationType.WRITE, `users/${currentUser.uid}/settings/reminders`)
-      );
-    }
-  }, [reminders, currentUser]);
-
   const currentLog = getOrCreateDailyLog(selectedDate, allLogs);
 
   const updateCurrentLog = (patch: Partial<DailyLog>) => {
@@ -156,10 +168,48 @@ export default function App() {
       updatedAt: new Date().toISOString(),
     };
 
-    setAllLogs((prev) => ({
-      ...prev,
-      [selectedDate]: updatedLog,
-    }));
+    setAllLogs((prev) => {
+      const nextLogs = { ...prev, [selectedDate]: updatedLog };
+      saveAllLogs(nextLogs);
+      return nextLogs;
+    });
+
+    if (currentUser && !quotaExceeded) {
+      const logRef = doc(db, 'users', currentUser.uid, 'daily_logs', selectedDate);
+      setDoc(logRef, updatedLog, { merge: true }).catch((err: any) => {
+        if (
+          err?.message?.includes('Quota limit exceeded') ||
+          err?.message?.includes('resource-exhausted') ||
+          err?.code === 'resource-exhausted'
+        ) {
+          console.warn('Firestore write quota exceeded; falling back to local persistence.');
+          setQuotaExceeded(true);
+        } else {
+          console.warn('Firestore log write warning:', err?.message);
+        }
+      });
+    }
+  };
+
+  const handleUpdateReminders = (newReminders: ReminderConfig[]) => {
+    setReminders(newReminders);
+    saveReminders(newReminders);
+
+    if (currentUser && !quotaExceeded) {
+      const remindersRef = doc(db, 'users', currentUser.uid, 'settings', 'reminders');
+      setDoc(remindersRef, { reminders: newReminders, updatedAt: new Date().toISOString() }, { merge: true }).catch((err: any) => {
+        if (
+          err?.message?.includes('Quota limit exceeded') ||
+          err?.message?.includes('resource-exhausted') ||
+          err?.code === 'resource-exhausted'
+        ) {
+          console.warn('Firestore write quota exceeded for reminders.');
+          setQuotaExceeded(true);
+        } else {
+          console.warn('Firestore reminders write warning:', err?.message);
+        }
+      });
+    }
   };
 
   // Prayer handlers
@@ -289,6 +339,18 @@ export default function App() {
         onLogout={() => logoutUser().catch(console.error)}
       />
 
+      {/* Quota Exceeded Alert Banner */}
+      {quotaExceeded && (
+        <div className="bg-amber-500/10 border-b border-amber-500/30 text-amber-400 px-4 py-2.5 text-xs flex items-center justify-between">
+          <div className="max-w-7xl mx-auto w-full flex items-center space-x-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>
+              <strong>Batas Quota Firestore Hari Ini Terlampaui:</strong> Sistem otomatis mengaktifkan <strong>Mode Penyimpanan Lokal (LocalStorage)</strong>. Seluruh jurnal & rutinitas harian Anda tetap tersimpan dengan aman di browser dan akan disinkronkan kembali besok setelah quota direset oleh Firebase.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {activeTab === 'beranda' && (
@@ -299,6 +361,7 @@ export default function App() {
               setSelectedDate={setSelectedDate}
               currentLog={currentLog}
               onUpdateMood={(mood) => updateCurrentLog({ mood })}
+              userName={currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Pengguna'}
             />
 
             {/* Bangun Tidur Section */}
@@ -370,11 +433,8 @@ export default function App() {
 
         {activeTab === 'progres' && <AnalyticsView allLogs={allLogs} />}
 
-        {activeTab === 'pengingat' && (
-          <ReminderView
-            reminders={reminders}
-            onUpdateReminders={setReminders}
-          />
+        {activeTab === 'surat_quran' && (
+          <QuranSurahStoriesView theme={theme} />
         )}
 
         {activeTab === 'pengaturan' && (

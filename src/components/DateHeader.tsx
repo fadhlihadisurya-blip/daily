@@ -8,6 +8,7 @@ interface DateHeaderProps {
   setSelectedDate: (date: string) => void;
   currentLog: DailyLog;
   onUpdateMood: (mood: DailyLog['mood']) => void;
+  userName?: string;
 }
 
 export const DateHeader: React.FC<DateHeaderProps> = ({
@@ -15,6 +16,7 @@ export const DateHeader: React.FC<DateHeaderProps> = ({
   setSelectedDate,
   currentLog,
   onUpdateMood,
+  userName = 'Pengguna',
 }) => {
   const todayStr = getTodayDateStr();
 
@@ -74,6 +76,30 @@ export const DateHeader: React.FC<DateHeaderProps> = ({
 
   return (
     <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/60 shadow-xl mb-6 backdrop-blur-sm">
+      {/* Welcome Greeting Banner */}
+      <div className="mb-4 pb-3 border-b border-slate-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center space-x-2.5">
+          <div className="p-2 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20">
+            <Sparkles className="w-4 h-4 fill-slate-950" />
+          </div>
+          <div>
+            <h3 className="text-sm sm:text-base font-extrabold text-slate-100 flex items-center gap-1.5">
+              <span>Selamat Datang,</span>
+              <span className="text-emerald-400 font-black">{userName}</span>
+              <span>👋</span>
+            </h3>
+            <p className="text-[11px] text-slate-400">
+              Semoga hari ini dilimpahi keberkahan & keistiqomahan dalam beribadah
+            </p>
+          </div>
+        </div>
+
+        <div className="hidden sm:flex items-center space-x-1 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold">
+          <Sun className="w-3.5 h-3.5 text-amber-400" />
+          <span>Ahlan wa Sahlan!</span>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Date Controls */}
         <div className="flex items-center justify-between sm:justify-start gap-2">
