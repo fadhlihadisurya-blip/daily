@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatDateDDMMYYYY } from '../utils/dateUtils';
 import { DailyLog } from '../types';
 import {
   BarChart,
@@ -45,10 +46,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
       const dateStr = d.toISOString().split('T')[0];
       const log = allLogs[dateStr];
 
-      const shortLabel = d.toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-      });
+      const shortLabel = formatDateDDMMYYYY(dateStr);
 
       const prayersDone = log
         ? Object.values(log.prayers).filter(Boolean).length

@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Smile, Heart, Zap, Sparkles, Sun } from 'lucide-react';
 import { getTodayDateStr } from '../data/initialData';
 import { DailyLog } from '../types';
+import { formatDateWithDayDDMMYYYY, formatDateDDMMYYYY } from '../utils/dateUtils';
 
 interface DateHeaderProps {
   selectedDate: string;
@@ -32,19 +33,9 @@ export const DateHeader: React.FC<DateHeaderProps> = ({
     setSelectedDate(d.toISOString().split('T')[0]);
   };
 
-  // Format date nicely in Indonesian locale
+  // Format date in dd/mm/yyyy format
   const formatDateLabel = (dateStr: string) => {
-    try {
-      const d = new Date(dateStr + 'T00:00:00');
-      return new Intl.DateTimeFormat('id-ID', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }).format(d);
-    } catch (e) {
-      return dateStr;
-    }
+    return formatDateWithDayDDMMYYYY(dateStr);
   };
 
   const isToday = selectedDate === todayStr;
@@ -111,13 +102,17 @@ export const DateHeader: React.FC<DateHeaderProps> = ({
             <ChevronLeft className="w-5 h-5" />
           </button>
 
-          <div className="relative flex items-center gap-2 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700">
-            <CalendarIcon className="w-4 h-4 text-emerald-400" />
+          <div className="relative flex items-center gap-2 bg-slate-900/80 px-3.5 py-2 rounded-xl border border-slate-700">
+            <CalendarIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-xs sm:text-sm font-extrabold text-emerald-400 font-mono tracking-tight">
+              {formatDateDDMMYYYY(selectedDate)}
+            </span>
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-              className="bg-transparent text-slate-100 text-xs sm:text-sm font-bold focus:outline-none cursor-pointer"
+              className="bg-transparent text-slate-100 text-xs sm:text-sm font-bold focus:outline-none cursor-pointer w-7 opacity-80 hover:opacity-100 transition-opacity"
+              title="Pilih Tanggal (DD/MM/YYYY)"
             />
           </div>
 

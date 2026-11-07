@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatDateDDMMYYYY } from '../utils/dateUtils';
 import { DailyLog } from '../types';
 import { Sparkles, X, RefreshCw, Moon, CheckCircle2, AlertCircle } from 'lucide-react';
 import { SUNNAH_PRAYERS } from '../data/quranData';
@@ -140,7 +141,7 @@ export const AiAdviceModal: React.FC<AiAdviceModalProps> = ({
             </div>
             <div>
               <h4 className="text-sm font-bold text-slate-200">
-                Siap Evaluasi Aktivitas Tanggal {selectedDate}?
+                Siap Evaluasi Aktivitas Tanggal {formatDateDDMMYYYY(selectedDate)}?
               </h4>
               <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
                 Gemini AI akan menganalisis capaian shalat sunnah, murajaah, bacaan buku, dan olahraga Anda, lalu memberikan masukan inspiratif.
