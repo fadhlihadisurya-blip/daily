@@ -4,10 +4,7 @@ export type PrayerKey =
   | 'dhuha'
   | 'qobliyah_zuhur'
   | 'badiyyah_zuhur'
-  | 'qobliyah_ashar'
-  | 'qobliyah_maghrib'
   | 'badiyyah_maghrib'
-  | 'qobliyah_isya'
   | 'badiyyah_isya'
   | 'witir';
 

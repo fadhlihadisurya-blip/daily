@@ -76,10 +76,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
             'qobliyah_subuh',
             'qobliyah_zuhur',
             'badiyyah_zuhur',
-            'qobliyah_ashar',
-            'qobliyah_maghrib',
             'badiyyah_maghrib',
-            'qobliyah_isya',
             'badiyyah_isya',
           ].filter((k) => rawPrayers[k as keyof typeof rawPrayers]).length
         : 0;
