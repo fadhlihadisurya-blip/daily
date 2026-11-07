@@ -1,0 +1,6 @@
+{
+  "name": "Daily Routine & Mutaba'ah - Pencatatan Aktivitas Harian",
+  "description": "Aplikasi web pencatatan aktivitas harian: Shalat Sunnah, Membaca Buku, Murajaah Al-Qur'an, Olahraga (Push-up & Pull-up), Grafik Progres Mingguan/Bulanan & Notifikasi Pengingat.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

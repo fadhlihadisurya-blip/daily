@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account information and profile details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User ID matching auth.uid" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User full display name" },
+        "photoURL": { "type": "string", "description": "Profile picture URL" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "DailyLogEntity": {
+      "title": "DailyLogEntity",
+      "description": "Daily activity log including prayers, readings, murajaah, tilawah, and workout exercises",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "prayers": { "type": "object", "description": "Map of prayer keys to boolean completion" },
+        "prayerNotes": { "type": "object", "description": "Optional notes per prayer" },
+        "readings": { "type": "array", "description": "List of book reading entries" },
+        "murajaah": { "type": "object", "description": "Murajaah Al-Qur'an progress log" },
+        "tilawah": { "type": "object", "description": "Tilawah Al-Qur'an 1 Juz daily target log" },
+        "exercises": { "type": "array", "description": "List of workout exercise set logs" },
+        "dailyNote": { "type": "string", "maxLength": 1000 },
+        "mood": { "type": "string", "enum": ["motivated", "peaceful", "happy", "neutral", "tired"] },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["date", "prayers"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User customizable reminder schedules and application preferences",
+      "type": "object",
+      "properties": {
+        "reminders": { "type": "array", "description": "Configured daily reminder alarms" },
+        "updatedAt": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Root user profile document"
+    },
+    "/users/{userId}/daily_logs/{dateStr}": {
+      "schema": { "$ref": "#/entities/DailyLogEntity" },
+      "description": "Daily activity logs for a specific date"
+    },
+    "/users/{userId}/settings/reminders": {
+      "schema": { "$ref": "#/entities/UserSettings" },
+      "description": "User reminder preferences"
+    }
+  }
+}
