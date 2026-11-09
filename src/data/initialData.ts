@@ -147,6 +147,17 @@ export function generateSamplePastLogs(): Record<string, DailyLog> {
             { id: 'p3', setNumber: 3, reps: 4 + (i % 3) * 5 },
           ],
         },
+        {
+          id: `ex_plank_${dateStr}`,
+          type: 'plank',
+          title: 'Plank Core',
+          unit: 'reps',
+          totalReps: 3 + (i % 3),
+          sets: [
+            { id: 'pl1', setNumber: 1, reps: 2 },
+            { id: 'pl2', setNumber: 2, reps: 1 + (i % 3) },
+          ],
+        },
       ],
       dailyNote: isToday
         ? 'Alhamdulillah hari ini aktivitas berjalan produktif dan tenang.'

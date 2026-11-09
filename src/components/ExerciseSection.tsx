@@ -12,25 +12,27 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
   exercises,
   onUpdateExercises,
 }) => {
-  const [activeType, setActiveType] = useState<'push_up' | 'pull_up' | 'squat'>('push_up');
+  const [activeType, setActiveType] = useState<'push_up' | 'pull_up' | 'plank'>('push_up');
 
   // Find or create current exercise type log
   const currentExercise = exercises.find((e) => e.type === activeType) || {
     id: `ex_${activeType}`,
     type: activeType,
-    title: activeType === 'push_up' ? 'Push-Up' : activeType === 'pull_up' ? 'Pull-Up' : 'Squat',
+    title: activeType === 'push_up' ? 'Push-Up' : activeType === 'pull_up' ? 'Pull-Up' : 'Plank',
     sets: [],
     totalReps: 0,
     unit: 'reps' as const,
   };
 
-  const handleAddSet = (repsCount: number = 15) => {
+  const isPlank = activeType === 'plank';
+
+  const handleAddSet = (count: number = isPlank ? 1 : 15) => {
     const existingSets = currentExercise.sets || [];
     const nextSetNum = existingSets.length + 1;
     const newSet: ExerciseSet = {
       id: `set_${Date.now()}_${Math.random()}`,
       setNumber: nextSetNum,
-      reps: repsCount,
+      reps: count,
     };
 
     const updatedSets = [...existingSets, newSet];
@@ -86,6 +88,7 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
 
   const pushUpLog = exercises.find((e) => e.type === 'push_up');
   const pullUpLog = exercises.find((e) => e.type === 'pull_up');
+  const plankLog = exercises.find((e) => e.type === 'plank');
 
   return (
     <div className="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/60 shadow-xl backdrop-blur-sm">
@@ -97,16 +100,16 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
           </div>
           <div>
             <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              Olahraga Harian (Push-up & Pull-up)
+              Olahraga Harian (Push-up, Pull-up & Plank)
             </h3>
             <p className="text-xs text-slate-400">
-              Pencatatan repetisi & set latihan fisik harian
+              Pencatatan repetisi & durasi latihan fisik harian
             </p>
           </div>
         </div>
 
         {/* Exercise Switcher Tabs */}
-        <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700">
+        <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 flex-wrap gap-1">
           <button
             onClick={() => setActiveType('push_up')}
             className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
@@ -128,14 +131,14 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
             Pull-Up ({pullUpLog?.totalReps || 0})
           </button>
           <button
-            onClick={() => setActiveType('squat')}
+            onClick={() => setActiveType('plank')}
             className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-              activeType === 'squat'
+              activeType === 'plank'
                 ? 'bg-rose-500 text-slate-950 font-bold shadow-md shadow-rose-500/20'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Squat
+            Plank ({plankLog?.totalReps || 0}m)
           </button>
         </div>
       </div>
@@ -146,11 +149,13 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
         <div className="space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400">
-              {currentExercise.title} Total Volume
+              {currentExercise.title} Total {isPlank ? 'Durasi' : 'Volume'}
             </span>
             <div className="text-3xl font-black text-slate-100 mt-1 flex items-baseline gap-2">
               <span>{currentExercise.totalReps}</span>
-              <span className="text-xs text-slate-400 font-normal">Repetisi Total</span>
+              <span className="text-xs text-slate-400 font-normal">
+                {isPlank ? 'Menit' : 'Repetisi Total'}
+              </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
               {currentExercise.sets?.length || 0} Set telah diselesaikan hari ini.
@@ -163,24 +168,49 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
               + Tambah Set Cepat:
             </span>
             <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => handleAddSet(activeType === 'pull_up' ? 5 : 10)}
-                className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
-              >
-                +{activeType === 'pull_up' ? 5 : 10} Reps
-              </button>
-              <button
-                onClick={() => handleAddSet(activeType === 'pull_up' ? 8 : 15)}
-                className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
-              >
-                +{activeType === 'pull_up' ? 8 : 15} Reps
-              </button>
-              <button
-                onClick={() => handleAddSet(activeType === 'pull_up' ? 10 : 20)}
-                className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
-              >
-                +{activeType === 'pull_up' ? 10 : 20} Reps
-              </button>
+              {isPlank ? (
+                <>
+                  <button
+                    onClick={() => handleAddSet(1)}
+                    className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
+                  >
+                    +1 Menit
+                  </button>
+                  <button
+                    onClick={() => handleAddSet(2)}
+                    className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
+                  >
+                    +2 Menit
+                  </button>
+                  <button
+                    onClick={() => handleAddSet(3)}
+                    className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
+                  >
+                    +3 Menit
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => handleAddSet(activeType === 'pull_up' ? 5 : 10)}
+                    className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
+                  >
+                    +{activeType === 'pull_up' ? 5 : 10} Reps
+                  </button>
+                  <button
+                    onClick={() => handleAddSet(activeType === 'pull_up' ? 8 : 15)}
+                    className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
+                  >
+                    +{activeType === 'pull_up' ? 8 : 15} Reps
+                  </button>
+                  <button
+                    onClick={() => handleAddSet(activeType === 'pull_up' ? 10 : 20)}
+                    className="py-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-300 text-xs font-bold border border-slate-700 transition-colors"
+                  >
+                    +{activeType === 'pull_up' ? 10 : 20} Reps
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -192,7 +222,7 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
               Daftar Set {currentExercise.title}
             </h4>
             <button
-              onClick={() => handleAddSet(activeType === 'pull_up' ? 8 : 15)}
+              onClick={() => handleAddSet(isPlank ? 2 : activeType === 'pull_up' ? 8 : 15)}
               className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-rose-500 hover:bg-rose-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-rose-500/20"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -207,7 +237,7 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
                 Belum ada set {currentExercise.title} yang dicatat.
               </p>
               <button
-                onClick={() => handleAddSet(activeType === 'pull_up' ? 8 : 15)}
+                onClick={() => handleAddSet(isPlank ? 2 : activeType === 'pull_up' ? 8 : 15)}
                 className="mt-2 text-xs text-rose-400 font-bold hover:underline"
               >
                 + Catat Set Pertama
@@ -243,7 +273,9 @@ export const ExerciseSection: React.FC<ExerciseSectionProps> = ({
                         }
                         className="w-12 bg-transparent text-center text-xs font-bold text-rose-400 focus:outline-none"
                       />
-                      <span className="text-[10px] text-slate-400">Reps</span>
+                      <span className="text-[10px] text-slate-400">
+                        {isPlank ? 'Menit' : 'Reps'}
+                      </span>
                     </div>
 
                     <button

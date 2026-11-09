@@ -65,6 +65,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
       const pullups =
         log?.exercises?.find((e) => e.type === 'pull_up')?.totalReps || 0;
 
+      const planks =
+        log?.exercises?.find((e) => e.type === 'plank')?.totalReps || 0;
+
       const rawPrayers = log ? log.prayers : null;
       const tahajjud = rawPrayers?.tahajjud ? 1 : 0;
       const dhuha = rawPrayers?.dhuha ? 1 : 0;
@@ -92,7 +95,8 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
         tilawah: tilawahPages,
         pushups,
         pullups,
-        totalExercise: pushups + pullups,
+        planks,
+        totalExercise: pushups + pullups + planks,
       };
     });
 

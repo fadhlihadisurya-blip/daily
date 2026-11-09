@@ -51,7 +51,9 @@ export const DateHeader: React.FC<DateHeaderProps> = ({
   const readingRatio = Math.min(1, readingTotal / 10);
 
   const pushups = currentLog.exercises.find((e) => e.type === 'push_up')?.totalReps || 0;
-  const exerciseRatio = Math.min(1, pushups / 30);
+  const pullups = currentLog.exercises.find((e) => e.type === 'pull_up')?.totalReps || 0;
+  const planks = currentLog.exercises.find((e) => e.type === 'plank')?.totalReps || 0;
+  const exerciseRatio = Math.min(1, (pushups + pullups) / 40);
 
   const overallProgress = Math.round(
     ((prayerRatio * 0.4 + murajaahRatio * 0.2 + readingRatio * 0.2 + exerciseRatio * 0.2) * 100)
@@ -241,10 +243,10 @@ export const DateHeader: React.FC<DateHeaderProps> = ({
           </div>
           <div className="bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/50 text-center">
             <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
-              Push-Up & Pull-Up
+              Push / Pull / Plank
             </div>
             <div className="text-sm font-bold text-rose-400 mt-0.5">
-              {pushups} / {currentLog.exercises.find((e) => e.type === 'pull_up')?.totalReps || 0}
+              {pushups}p / {pullups}pu / {planks}m
             </div>
           </div>
         </div>

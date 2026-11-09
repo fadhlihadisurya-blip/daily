@@ -51,7 +51,7 @@ export interface ExerciseSet {
 
 export interface ExerciseLog {
   id: string;
-  type: 'push_up' | 'pull_up' | 'squat' | 'plank' | 'custom';
+  type: 'push_up' | 'pull_up' | 'plank' | 'custom';
   title: string;
   sets: ExerciseSet[];
   totalReps: number;

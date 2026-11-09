@@ -41,6 +41,7 @@ export const AiAdviceModal: React.FC<AiAdviceModalProps> = ({
 
     const pushups = currentLog.exercises.find((e) => e.type === 'push_up')?.totalReps || 0;
     const pullups = currentLog.exercises.find((e) => e.type === 'pull_up')?.totalReps || 0;
+    const planks = currentLog.exercises.find((e) => e.type === 'plank')?.totalReps || 0;
 
     const wakeUpTextMap: Record<string, string> = {
       bangun_sendiri: 'Bangun sendiri sebelum jam 4',
@@ -64,6 +65,7 @@ export const AiAdviceModal: React.FC<AiAdviceModalProps> = ({
       murajaahStatus: currentLog.murajaah.completed ? 'Selesai Tuntas' : 'Belum Selesai',
       pushupTotal: pushups,
       pullupTotal: pullups,
+      plankTotalMinutes: planks,
       dailyNote: currentLog.dailyNote || '',
     };
 
