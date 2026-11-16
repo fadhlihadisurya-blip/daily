@@ -120,9 +120,25 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
   }).length;
   const totalPushups = chartData.reduce((sum, d) => sum + d.pushups, 0);
   const totalPullups = chartData.reduce((sum, d) => sum + d.pullups, 0);
+  const totalPlanks = chartData.reduce((sum, d) => sum + d.planks, 0);
+
+  const readingDaysCount = chartData.filter((d) => d.reading > 0).length;
+  const murajaahDaysCount = chartData.filter((d) => {
+    const log = allLogs[d.dateStr];
+    return (
+      d.murajaah > 0 ||
+      Boolean(log?.murajaah?.completed) ||
+      (log?.murajaah?.completedSurahNumbers?.length || 0) > 0
+    );
+  }).length;
 
   const pushupDaysCount = chartData.filter((d) => d.pushups > 0).length;
   const pullupDaysCount = chartData.filter((d) => d.pullups > 0).length;
+  const plankDaysCount = chartData.filter((d) => d.planks > 0).length;
+
+  const avgPushups = pushupDaysCount > 0 ? Math.round(totalPushups / pushupDaysCount) : 0;
+  const avgPullups = pullupDaysCount > 0 ? Math.round(totalPullups / pullupDaysCount) : 0;
+  const avgPlanks = plankDaysCount > 0 ? Number((totalPlanks / plankDaysCount).toFixed(1)) : 0;
 
   const totalMurajaahSurahsCount = chartData.reduce((sum, d) => {
     const log = allLogs[d.dateStr];
@@ -225,6 +241,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
             <div className="text-lg font-black text-slate-100">
               {totalReadingPages} <span className="text-xs text-indigo-400 font-normal">Halaman</span>
             </div>
+            <div className="text-[11px] text-indigo-300 font-semibold mt-0.5">
+              Terlaksana: {readingDaysCount} Hari
+            </div>
           </div>
         </div>
 
@@ -240,19 +259,42 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
               {totalMurajaahPages} <span className="text-xs text-amber-400 font-normal">Halaman</span>
               <span className="text-xs text-slate-300 font-normal ml-1.5">({totalMurajaahSurahsCount} Surat)</span>
             </div>
+            <div className="text-[11px] text-amber-300 font-semibold mt-0.5">
+              Terlaksana: {murajaahDaysCount} Hari
+            </div>
           </div>
         </div>
 
-        <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60 flex items-center space-x-3">
-          <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30">
+        <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60 flex items-start space-x-3">
+          <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/30 shrink-0">
             <Dumbbell className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-[11px] text-slate-400 font-semibold uppercase">
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] text-slate-400 font-semibold uppercase mb-1">
               Konsistensi Olahraga
             </div>
-            <div className="text-base sm:text-lg font-black text-slate-100">
-              Push-up {pushupDaysCount} Hari <span className="text-xs text-rose-400 font-normal">/ Pull-up {pullupDaysCount} Hari</span>
+            <div className="space-y-1 text-xs">
+              <div className="flex items-center justify-between gap-1.5">
+                <span className="text-slate-300 font-semibold">Push-up</span>
+                <span className="font-bold text-slate-100 text-right">
+                  Rata-rata {avgPushups} <span className="text-[10px] text-rose-400 font-normal">reps</span>
+                  <span className="text-[10px] text-slate-400 font-normal ml-1">({pushupDaysCount} Hari)</span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-1.5">
+                <span className="text-slate-300 font-semibold">Pull-up</span>
+                <span className="font-bold text-slate-100 text-right">
+                  Rata-rata {avgPullups} <span className="text-[10px] text-rose-400 font-normal">reps</span>
+                  <span className="text-[10px] text-slate-400 font-normal ml-1">({pullupDaysCount} Hari)</span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-1.5">
+                <span className="text-slate-300 font-semibold">Plank</span>
+                <span className="font-bold text-slate-100 text-right">
+                  Rata-rata {avgPlanks} <span className="text-[10px] text-rose-400 font-normal">menit</span>
+                  <span className="text-[10px] text-slate-400 font-normal ml-1">({plankDaysCount} Hari)</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
