@@ -21,7 +21,6 @@ interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   streakCount: number;
-  onOpenAiModal: () => void;
   onOpenInstallModal: () => void;
   theme?: 'dark' | 'light';
   currentUser?: User | null;
@@ -33,7 +32,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   streakCount,
-  onOpenAiModal,
   onOpenInstallModal,
   theme = 'dark',
   currentUser,
@@ -108,16 +106,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Flame className="w-4 h-4 text-amber-400 fill-amber-400/30 animate-pulse" />
               <span>{streakCount} Hari Istiqomah</span>
             </div>
-
-            {/* AI Evaluasi Button */}
-            <button
-              onClick={onOpenAiModal}
-              className="flex items-center space-x-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-slate-950 text-xs font-bold transition-all shadow-lg shadow-teal-500/20 active:scale-95"
-            >
-              <Sparkles className="w-4 h-4 fill-slate-950" />
-              <span className="hidden sm:inline">AI Evaluasi</span>
-              <span className="sm:hidden">AI</span>
-            </button>
 
             {/* Google Auth User Profile Button */}
             {currentUser ? (

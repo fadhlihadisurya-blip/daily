@@ -1,7 +1,7 @@
 import React from 'react';
 import { TilawahLog } from '../types';
 import { getJuzForPage } from '../data/quranData';
-import { BookOpenCheck, Check, Sparkles, Award, ArrowRight, BookOpen, Layers } from 'lucide-react';
+import { BookOpenCheck, Check, Award, ArrowRight, Layers, Ban } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface TilawahSectionProps {
@@ -14,16 +14,36 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
   onUpdateTilawah,
 }) => {
   // Fallback defaults if tilawah is empty
+  const isNoTilawah = Boolean(tilawah?.noTilawah);
   const currentStart = tilawah?.startPage || 1;
   const currentEnd = tilawah?.endPage || (currentStart <= 21 ? 21 : currentStart + 19);
 
   const juzInfo = getJuzForPage(currentStart);
-  const totalReadPages = Math.max(0, currentEnd - currentStart + 1);
+  const totalReadPages = isNoTilawah ? 0 : Math.max(0, currentEnd - currentStart + 1);
   const targetPages = juzInfo.targetPages;
-  const isCompleted = totalReadPages >= targetPages;
-  const completionPercentage = Math.min(100, Math.round((totalReadPages / targetPages) * 100));
+  const isCompleted = !isNoTilawah && totalReadPages >= targetPages;
+  const completionPercentage = isNoTilawah
+    ? 0
+    : Math.min(100, Math.round((totalReadPages / targetPages) * 100));
+
+  const handleToggleNoTilawah = (checked: boolean) => {
+    const recalculatedTotal = checked ? 0 : Math.max(0, currentEnd - currentStart + 1);
+    const recalculatedCompleted = !checked && recalculatedTotal >= targetPages;
+
+    onUpdateTilawah({
+      startPage: currentStart,
+      endPage: currentEnd,
+      totalPages: recalculatedTotal,
+      currentJuz: juzInfo.juz,
+      targetPages: targetPages,
+      completed: recalculatedCompleted,
+      noTilawah: checked,
+      notes: tilawah?.notes || '',
+    });
+  };
 
   const handleStartPageChange = (val: number) => {
+    if (isNoTilawah) return;
     const start = Math.max(1, Math.min(604, val));
     const newJuzInfo = getJuzForPage(start);
     // Suggest end page for 1 juz target
@@ -38,6 +58,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
       currentJuz: newJuzInfo.juz,
       targetPages: newJuzInfo.targetPages,
       completed: total >= newJuzInfo.targetPages,
+      noTilawah: false,
       notes: tilawah?.notes || '',
     };
 
@@ -45,6 +66,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
   };
 
   const handleEndPageChange = (val: number) => {
+    if (isNoTilawah) return;
     const end = Math.max(currentStart, Math.min(604, val));
     const total = Math.max(0, end - currentStart + 1);
     const isNowDone = total >= targetPages;
@@ -56,6 +78,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
       currentJuz: juzInfo.juz,
       targetPages: targetPages,
       completed: isNowDone,
+      noTilawah: false,
       notes: tilawah?.notes || '',
     };
 
@@ -71,6 +94,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
   };
 
   const handleSetOneJuzComplete = () => {
+    if (isNoTilawah) return;
     const end = Math.min(604, juzInfo.endPage);
     const total = Math.max(0, end - currentStart + 1);
 
@@ -81,6 +105,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
       currentJuz: juzInfo.juz,
       targetPages: targetPages,
       completed: true,
+      noTilawah: false,
       notes: tilawah?.notes || '',
     });
 
@@ -92,6 +117,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
   };
 
   const handleJumpToNextJuz = () => {
+    if (isNoTilawah) return;
     const nextStart = Math.min(604, juzInfo.endPage + 1);
     handleStartPageChange(nextStart);
   };
@@ -105,16 +131,20 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
             <BookOpenCheck className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+            <h3 className="text-base font-bold text-slate-100 flex items-center flex-wrap gap-2">
               Tilawah Al-Qur'an
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold">
                 Juz {juzInfo.juz} ({targetPages} Hal)
               </span>
-              {isCompleted && (
+              {isNoTilawah ? (
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-700 text-slate-300 font-bold flex items-center gap-1">
+                  <Ban className="w-3 h-3 text-rose-400" /> Tidak Tilawah
+                </span>
+              ) : isCompleted ? (
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold flex items-center gap-1">
                   <Award className="w-3 h-3" /> Target 1 Juz Tuntas!
                 </span>
-              )}
+              ) : null}
             </h3>
             <p className="text-xs text-slate-400">
               Pencatatan tilawah harian dengan target 1 Juz per hari (~20 Halaman)
@@ -142,6 +172,28 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
             </span>
           </div>
 
+          {/* Checklist Tidak Tilawah */}
+          <label
+            className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all select-none ${
+              isNoTilawah
+                ? 'bg-rose-500/10 border-rose-500/40 text-rose-200'
+                : 'bg-slate-800/70 border-slate-700/70 text-slate-300 hover:border-slate-600'
+            }`}
+          >
+            <div className="flex items-center space-x-2.5">
+              <input
+                type="checkbox"
+                checked={isNoTilawah}
+                onChange={(e) => handleToggleNoTilawah(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-600 text-rose-500 focus:ring-rose-500 focus:ring-offset-slate-900 bg-slate-800 cursor-pointer accent-rose-500"
+              />
+              <span className="text-xs font-bold">Tidak Tilawah</span>
+            </div>
+            <span className="text-[10px] text-slate-400">
+              {isNoTilawah ? 'Input halaman dinonaktifkan (0 Hal)' : 'Centang jika hari ini tidak tilawah'}
+            </span>
+          </label>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold text-slate-300 mb-1">
@@ -151,9 +203,11 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
                 type="number"
                 min="1"
                 max="604"
-                value={currentStart}
+                disabled={isNoTilawah}
+                value={isNoTilawah ? '' : currentStart}
+                placeholder={isNoTilawah ? '-' : undefined}
                 onChange={(e) => handleStartPageChange(parseInt(e.target.value, 10) || 1)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 font-bold focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 font-bold focus:outline-none focus:border-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-900"
               />
             </div>
 
@@ -165,9 +219,11 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
                 type="number"
                 min={currentStart}
                 max="604"
-                value={currentEnd}
+                disabled={isNoTilawah}
+                value={isNoTilawah ? '' : currentEnd}
+                placeholder={isNoTilawah ? '-' : undefined}
                 onChange={(e) => handleEndPageChange(parseInt(e.target.value, 10) || currentStart)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 font-bold focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 font-bold focus:outline-none focus:border-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-slate-900"
               />
             </div>
           </div>
@@ -198,6 +254,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
                   currentJuz: juzInfo.juz,
                   targetPages,
                   completed: isCompleted,
+                  noTilawah: isNoTilawah,
                   notes: e.target.value,
                 })
               }
@@ -214,7 +271,9 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
 
           {/* Progress Bar & Counter */}
           <div className="w-full space-y-2">
-            <div className="text-3xl font-black text-cyan-400 flex items-baseline justify-center gap-1">
+            <div className={`text-3xl font-black flex items-baseline justify-center gap-1 ${
+              isNoTilawah ? 'text-slate-500' : 'text-cyan-400'
+            }`}>
               <span>{totalReadPages}</span>
               <span className="text-sm font-normal text-slate-400">
                 / {targetPages} Halaman (Juz {juzInfo.juz})
@@ -229,7 +288,7 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
               />
             </div>
             <div className="text-[11px] text-slate-400 font-semibold">
-              Capaian Target: {completionPercentage}%
+              {isNoTilawah ? 'Tidak ada tilawah hari ini (0 Halaman)' : `Capaian Target: ${completionPercentage}%`}
             </div>
           </div>
 
@@ -237,7 +296,8 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
             <button
               onClick={handleSetOneJuzComplete}
-              className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-1"
+              disabled={isNoTilawah}
+              className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>Selesaikan 1 Juz (Hal {juzInfo.endPage})</span>
@@ -246,7 +306,8 @@ export const TilawahSection: React.FC<TilawahSectionProps> = ({
             {currentEnd < 604 && (
               <button
                 onClick={handleJumpToNextJuz}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+                disabled={isNoTilawah}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 text-xs font-semibold flex items-center gap-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <span>Lanjut Juz {juzInfo.juz + 1}</span>
                 <ArrowRight className="w-3.5 h-3.5" />

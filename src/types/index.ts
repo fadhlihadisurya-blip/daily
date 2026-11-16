@@ -66,6 +66,7 @@ export interface TilawahLog {
   currentJuz: number;
   targetPages: number;
   completed: boolean;
+  noTilawah?: boolean;
   notes?: string;
 }
 

@@ -19,7 +19,6 @@ import { ReadingSection } from './components/ReadingSection';
 import { ExerciseSection } from './components/ExerciseSection';
 import { AnalyticsView } from './components/AnalyticsView';
 import { QuranSurahStoriesView } from './components/QuranSurahStoriesView';
-import { AiAdviceModal } from './components/AiAdviceModal';
 import { BackupModal } from './components/BackupModal';
 import { AuthModal } from './components/AuthModal';
 import { AuthGate } from './components/AuthGate';
@@ -51,7 +50,6 @@ export default function App() {
   });
 
   // Modals state
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
@@ -331,7 +329,6 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         streakCount={currentStreak}
-        onOpenAiModal={() => setIsAiModalOpen(true)}
         onOpenInstallModal={() => setIsInstallModalOpen(true)}
         theme={theme}
         currentUser={currentUser}
@@ -517,14 +514,7 @@ export default function App() {
         )}
       </main>
 
-      {/* AI Advice Modal */}
-      <AiAdviceModal
-        isOpen={isAiModalOpen}
-        onClose={() => setIsAiModalOpen(false)}
-        selectedDate={selectedDate}
-        currentLog={currentLog}
-        allLogs={allLogs}
-      />
+
 
       {/* Backup Data Modal */}
       <BackupModal

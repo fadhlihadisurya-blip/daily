@@ -57,7 +57,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
         : 0;
 
       const murajaahPages = log?.murajaah?.completedPages || 0;
-      const tilawahPages = log?.tilawah?.totalPages || 0;
+      const tilawahPages = log?.tilawah?.noTilawah ? 0 : (log?.tilawah?.totalPages || 0);
 
       const pushups =
         log?.exercises?.find((e) => e.type === 'push_up')?.totalReps || 0;
@@ -114,6 +114,10 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
   const totalReadingPages = chartData.reduce((sum, d) => sum + d.reading, 0);
   const totalMurajaahPages = chartData.reduce((sum, d) => sum + d.murajaah, 0);
   const totalTilawahPages = chartData.reduce((sum, d) => sum + d.tilawah, 0);
+  const totalNoTilawahDays = chartData.filter((d) => {
+    const log = allLogs[d.dateStr];
+    return log?.tilawah?.noTilawah === true;
+  }).length;
   const totalPushups = chartData.reduce((sum, d) => sum + d.pushups, 0);
   const totalPullups = chartData.reduce((sum, d) => sum + d.pullups, 0);
 
@@ -203,6 +207,9 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ allLogs }) => {
             </div>
             <div className="text-lg font-black text-slate-100">
               {totalTilawahPages} <span className="text-xs text-cyan-400 font-normal">Halaman</span>
+            </div>
+            <div className="text-[11px] text-rose-400 font-semibold mt-0.5">
+              Total Tidak Tilawah: {totalNoTilawahDays} Hari
             </div>
           </div>
         </div>

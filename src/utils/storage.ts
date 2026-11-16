@@ -50,9 +50,13 @@ export function getOrCreateDailyLog(
   const prevLog = allLogs[prevDateStr];
   let defaultStartPage = 1;
 
-  if (prevLog && prevLog.tilawah && prevLog.tilawah.endPage) {
-    defaultStartPage = prevLog.tilawah.endPage + 1;
-    if (defaultStartPage > 604) defaultStartPage = 1;
+  if (prevLog && prevLog.tilawah) {
+    if (prevLog.tilawah.noTilawah) {
+      defaultStartPage = prevLog.tilawah.startPage || 1;
+    } else if (prevLog.tilawah.endPage) {
+      defaultStartPage = prevLog.tilawah.endPage + 1;
+      if (defaultStartPage > 604) defaultStartPage = 1;
+    }
   }
 
   const juzInfo = getJuzForPage(defaultStartPage);
@@ -79,6 +83,7 @@ export function getOrCreateDailyLog(
       currentJuz: juzInfo.juz,
       targetPages: juzInfo.targetPages,
       completed: true,
+      noTilawah: false,
     },
     exercises: [
       {
